@@ -15,6 +15,36 @@ services:
       - "5432:5432"
 
 # TODO добавить сервисы
+   gateway:
+    build: src/gatewayService/
+    container_name: gateway_cont
+    restart: on-failure
+    ports:
+      - "8080:8080"
+
+  payment:
+    build: src/paymentService/
+    container_name: payment_cont
+    restart: on-failure
+    ports:
+      - "8050:8050"
+
+
+  rental:
+    build: src/rentalService/
+    container_name: rental_cont
+    restart: on-failure
+    ports:
+      - "8060:8060"
+
+
+  cars:
+    build: src/carsService/
+    container_name: cars_cont
+    restart: on-failure
+    ports:
+      - "8070:8070"
+
 
 volumes:
   db-data:
