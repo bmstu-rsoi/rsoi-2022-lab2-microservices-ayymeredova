@@ -21,19 +21,20 @@ jobs:
 
       - name: Build images
         timeout-minutes: 10
-        run: docker-compose build
+        run: docker compose build
 
       - name: Run containers
         timeout-minutes: 5
         run: |
-          docker-compose up -d
+          docker compose up -d
           ./scripts/wait-script.sh
         env:
           WAIT_PORTS: 8080,8070,8060,8050
 
-      - name: Countdown
-        run: sleep 30s
-        shell: bash
+      - name: Wait 15s
+        uses: jakejarvis/wait-action@master
+        with:
+          time: '15s'
 
       - name: Run API Tests
         uses: matt-ball/newman-action@master
