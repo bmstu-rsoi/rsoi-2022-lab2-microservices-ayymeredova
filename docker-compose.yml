@@ -14,8 +14,8 @@ services:
     ports:
       - "5432:5432"
 
-# TODO добавить сервисы
-   gateway:
+  # TODO добавить сервисы
+  gateway:
     build: src/gatewayService/
     container_name: gateway_cont
     restart: on-failure
