@@ -11,19 +11,35 @@ from paymentDB import PaymentDB
 # from utils import make_data_response, make_empty
 from flask import send_from_directory, jsonify, make_response
 from sqlalchemy import exc
-from model import RentalModel
-
+from model import PaymentModel, db
+from uuid import uuid4
 app = Flask(__name__)
 
+db.init_app(app)
 
-PaymentDB.init_app(app)
 migrate = Migrate(app)
 
 port = os.environ.get('PORT')
 if port is None:
-    port = 8060
+    port = 8050
 
 @app.errorhandler(404)
+
+
+
+def make_data_response(status_code, **kwargs):
+    response = jsonify({
+            **kwargs
+        })
+    response.status_code = status_code
+    return response
+
+def make_empty(status_code):
+    response = make_response()
+    response.status_code = status_code
+    del response.headers["Content-Type"]
+    del response.headers["Content-Length"]
+    return response
 
 @app.route('/favicon.ico') 
 def favicon():
@@ -31,13 +47,56 @@ def favicon():
                           'favicon.ico',mimetype='image/vnd.microsoft.icon')
 
 
-@app.route("api/v1/rental/<string:rentalUid>", methods = ["GET"])
-def get_all_rentals_user(rental_uid):
-    """Получить информацию о всех арендах пользователя"""
-    result=PaymentDB.session.query(RentalModel).filter(RentalModel.rental_uid==rental_uid).one_or_none()
-    if not result:
-        abort(404)
-    return make_response(jsonify(result), 200)
+@app.route("api/v1/payment/<string:payment_uid>", methods = ["GET"])
+def get_payment(payment_uid):
+        result=PaymentDB.session.query(PaymentModel).filter(PaymentModel.rental_uid==payment_uid).one_or_none()
+        if not result:
+            abort(404)
+        return make_response(jsonify(result), 200)
+
+@app.route("api/v1/payment/<string:payment_uid>", methods = ["DELETE"])
+def delete_payment(payment_uid):
+    payment = PaymentDB.session.query(PaymentModel).filter(PaymentModel.rental_uid==payment_uid).one_or_none()
+    payment.status = 'CANCELED'
+
+    try:
+        db.session.commit()
+        return make_empty(204)
+    except:
+        db.session.rollback()
+        return make_data_response(500, message="Database delete error")
+
+@app.route('/api/v1/payment/', methods = ['POST'])
+def post_payment():
+    try:
+        if request.is_json:
+            data = request.get_json()
+            new_payment = PaymentModel(
+                payment_uid=str(uuid4()),
+                price=data["price"]
+            )
+    except ValidationError:
+            return make_response(400, message="Bad JSON format")
+
+    try:
+        db.session.add(new_payment)
+        db.session.commit()
+
+
+    except:
+        db.session.rollback()
+        return make_data_response(500,  message="Database delete error")
+
+    response = make_empty(201)
+    response.headers["Location"] = f"/api/v1/payment/{new_payment.id}"
+    return response
+
+
+
+
+    
+
+
 
 
 

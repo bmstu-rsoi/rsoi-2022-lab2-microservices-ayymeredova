@@ -1,6 +1,7 @@
 import psycopg2
 from psycopg2 import Error
 
+
 class PaymentDB():
     def __init__(self):
         try:
@@ -63,3 +64,12 @@ class PaymentDB():
 
         self.cur.close()
         self.conn.close()
+
+    # @app.errorhandler(404)
+    # def not_found(error):
+    #     return make_response(jsonify({'error': 'Not found the information'}), 404)
+
+
+    # def delete_car (card_uid):
+    #     try:
+            

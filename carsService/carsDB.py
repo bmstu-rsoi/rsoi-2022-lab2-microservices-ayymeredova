@@ -1,7 +1,7 @@
 import psycopg2
 from psycopg2 import Error
 
-class PaymentDB():
+class CarDB():
     def __init__(self):
         try:
             self.conn = psycopg2.connect(
@@ -88,7 +88,5 @@ class PaymentDB():
 
         self.cur.close()
         self.conn.close()
-
-
 
     
