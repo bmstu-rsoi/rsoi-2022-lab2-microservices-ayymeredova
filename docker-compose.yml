@@ -17,14 +17,14 @@ services:
   # TODO добавить сервисы
   gateway:
     build: src/gatewayService/
-    container_name: gateway_cont
+    container_name: gateway
     restart: on-failure
     ports:
       - "8080:8080"
 
   payment:
     build: src/paymentService/
-    container_name: payment_cont
+    container_name: payment
     restart: on-failure
     ports:
       - "8050:8050"
@@ -32,7 +32,7 @@ services:
 
   rental:
     build: src/rentalService/
-    container_name: rental_cont
+    container_name: rental
     restart: on-failure
     ports:
       - "8060:8060"
@@ -40,7 +40,7 @@ services:
 
   cars:
     build: src/carsService/
-    container_name: cars_cont
+    container_name: cars
     restart: on-failure
     ports:
       - "8070:8070"

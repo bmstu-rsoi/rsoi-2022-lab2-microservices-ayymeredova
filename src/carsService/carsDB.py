@@ -7,8 +7,8 @@ class CarDB():
             self.conn = psycopg2.connect(
                 host="postgres",
                 database="cars",
-                user='postgres',
-                password='postgres',
+                user='program',
+                password='test',
                 port="5432")
 
             self.cur = self.conn.cursor()

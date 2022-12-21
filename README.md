@@ -35,7 +35,7 @@
    блок [`build`](https://docs.docker.com/compose/compose-file/build/).
 4. Горизонтальную коммуникацию между сервисами делать нельзя.
 5. Интеграционные тесты можно проверить локально, для этого нужно импортировать в Postman
-   коллекцию `<variant>/postman/collection.json`) и `<variant>/postman/environment.json`.
+   коллекцию `/postman/collection.json`) и `<variant>/postman/environment.json`.
 
 ![Services](images/services.png)
 

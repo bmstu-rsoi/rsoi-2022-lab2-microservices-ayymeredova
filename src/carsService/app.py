@@ -51,7 +51,7 @@ def favicon():
                           'favicon.ico',mimetype='image/vnd.microsoft.icon')
 
 
-@app.route("api/v1/rental/<string:carUid>", methods = ["GET"])
+@app.route("/api/v1/rental/<string:carUid>", methods = ["GET"])
 def get_car(car_uid):
     """Получить информацию о всех арендах пользователя"""
     result=CarDB.session.query(CarModel).filter(CarModel.rental_uid==car_uid).one_or_none()
@@ -59,7 +59,7 @@ def get_car(car_uid):
         abort(404)
     return make_response(jsonify(result), 200)
 
-@app.route("api/v1/cars/<string:carUid>/order", methods = ["DELETE"])
+@app.route("/api/v1/cars/<string:carUid>/order", methods = ["DELETE"])
 def delete_one_rental(car_uid):
     car = CarDB.session.query(CarModel).filter(CarModel.rental_uid==car_uid).one_or_none()
     car.availability = True
@@ -72,7 +72,7 @@ def delete_one_rental(car_uid):
         return make_data_response(500, message="Database delete error")
 
 
-@app.route("api/v1/cars/>", methods = ["GET", "POST"])
+@app.route("/api/v1/cars/", methods = ["GET", "POST"])
 def get_all_rental():
     if request.method == 'GET':
         result=CarModel.query.all()
@@ -113,3 +113,5 @@ def get_all_rental():
 
 
 
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8070)
