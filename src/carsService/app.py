@@ -104,7 +104,7 @@ def args_valid(args):
 @app.route("/api/v1/cars/<string:carUid>", methods = ["GET"])
 def get_car(carUid):
     if request.method == "GET":
-        result=CarDB.session.query(CarModel).filter(CarModel.car_uid==carUid).one_or_none()
+        result=db.session.query(CarModel).filter(CarModel.car_uid==carUid).one_or_none()
         if not result:
             abort(404)
         return make_response(jsonify(result), 200)
@@ -113,7 +113,7 @@ def get_car(carUid):
 def post_car(carUid):
     try:
         # car = CarModel.select().where(CarModel.car_uid==carUid).get()
-        car = CarDB.session.query(CarModel).filter(CarModel.car_uid==carUid).one_or_none()
+        car = db.session.query(CarModel).filter(CarModel.car_uid==carUid).one_or_none()
         if car.availability is False:
             return Response(
                 status=403,
@@ -142,7 +142,7 @@ def post_car(carUid):
 @app.route("/api/v1/cars/<string:carUid>/order", methods = ["DELETE"])
 def delete_car_order(carUid):
     try:
-        car = CarDB.session.query(CarModel).filter(CarModel.car_uid==carUid).one_or_none()
+        car = db.session.query(CarModel).filter(CarModel.car_uid==carUid).one_or_none()
         if car.availability is True:
             return Response(
                 status=403,
@@ -192,13 +192,13 @@ def get_all_cars():
     
 
     if not show_all:
-        query =CarDB.session.query(CarModel).filter(CarModel.availability==True).all()
+        query = db.session.query(CarModel).filter(CarModel.availability==True)
         count_total = query.count()
-        cars = [car.to_dict() for car in query.paginate(page, size)]
+        cars = [car.to_dict() for car in query.paginate(page=page, per_page=size)]
 
     else:
         count_total = CarModel.select().count()
-        cars =  [car.to_dict() for car in CarModel.paginate(page, size)]
+        cars =  [car.to_dict() for car in CarModel.paginate(page=page, per_page=size)]
 
     # return make_response(jsonify(result), 200)
     return Response(

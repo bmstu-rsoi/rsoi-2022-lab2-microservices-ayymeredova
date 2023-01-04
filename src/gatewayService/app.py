@@ -4,6 +4,8 @@ import sys
 from marshmallow import ValidationError
 # import psycopg2
 from flask import Flask, request, flash, redirect
+import requests
+
 # from flask_migrate import Migrate
 from flask_restful import Api, Resource, reqparse, abort, fields, marshal_with, url_for
 # from flask_sqlalchemy import SQLAlchemy
@@ -62,9 +64,8 @@ def delete_rental(rental_uid):
 def get_cars():
     page = request.args.get('page', default=0, type=int)
     size = request.args.get('size', default=0, type=int)
-    response = request.get("http://car:8070/api/v1/cars", params={'page':page, "size":size})
+    response = requests.get("http://cars:8070/api/v1/cars", params={'page':page, "size":size})
     return make_response(response.json(), 200)
-
 
 # TODO!!!
 @app.route('/api/v1/rental/<string:rentalUid>', methods=['GET'])
@@ -75,7 +76,7 @@ def get_rental(rental_uid):
 
     page = request.args.get('page', default=0, type=int)
     size = request.args.get('size', default=0, type=int)
-    response = request.get(f"http://rental:8060/api/v1/rental/{rental_uid}", params={'page':page, "size":size})
+    response = requests.get(f"http://rental:8060/api/v1/rental/{rental_uid}", params={'page':page, "size":size})
     return make_response(response.json(), 200)
 
 

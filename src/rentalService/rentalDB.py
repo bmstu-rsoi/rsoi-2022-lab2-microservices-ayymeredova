@@ -6,7 +6,7 @@ class RentalDB():
         try:
             self.conn = psycopg2.connect(
                 host="postgres",
-                database="rental",
+                database="rentals",
                 user='postgres',
                 password='postgres',
                 port="5432")
@@ -16,7 +16,7 @@ class RentalDB():
             raise(e)
         
 
-    def check_rental_db(self, db_name):
+    def check_rental_db(self):
         self.cur.execute('DROP TABLE IF EXISTS rental;')
     
         self.cur.execute("""CREATE TABLE rental

@@ -18,6 +18,10 @@ import json
 
 app = Flask(__name__)
 
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://program:test@postgres:5432/rentals"
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+
 db.init_app(app)
 
 migrate = Migrate(app)

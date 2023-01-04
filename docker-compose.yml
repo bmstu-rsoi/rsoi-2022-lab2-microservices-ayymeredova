@@ -28,6 +28,8 @@ services:
     restart: on-failure
     ports:
       - "8050:8050"
+    depends_on:
+      - postgres
 
 
   rental:
@@ -36,7 +38,8 @@ services:
     restart: on-failure
     ports:
       - "8060:8060"
-
+    depends_on:
+      - postgres
 
   cars:
     build: src/carsService/
@@ -44,7 +47,8 @@ services:
     restart: on-failure
     ports:
       - "8070:8070"
-
+    depends_on:
+      - postgres
 
 volumes:
   db-data:

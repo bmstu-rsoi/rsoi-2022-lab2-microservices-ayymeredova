@@ -7,7 +7,7 @@ class PaymentDB():
         try:
             self.conn = psycopg2.connect(
                 host="postgres",
-                database="payment",
+                database="payments",
                 user='postgres',
                 password='postgres',
                 port="5432")
@@ -17,7 +17,7 @@ class PaymentDB():
             raise(e)
         
 
-    def check_payment_db(self, db_name):
+    def check_payment_db(self):
         self.cur.execute('DROP TABLE IF EXISTS payment;')
     
         self.cur.execute("""CREATE TABLE payment

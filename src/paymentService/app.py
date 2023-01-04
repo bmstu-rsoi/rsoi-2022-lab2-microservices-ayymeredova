@@ -14,10 +14,13 @@ from sqlalchemy import exc
 from model import PaymentModel, db
 from uuid import uuid4
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://program:test@postgres:5432/payments"
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 
 db.init_app(app)
 
-migrate = Migrate(app)
+# migrate = Migrate(app)
 
 port = os.environ.get('PORT')
 if port is None:
@@ -50,14 +53,14 @@ def favicon():
 
 
 
-@app.route("api/v1/payment/<string:payment_uid>", methods = ["GET"])
+@app.route("/api/v1/payment/<string:payment_uid>", methods = ["GET"])
 def get_payment(payment_uid):
         result=PaymentDB.session.query(PaymentModel).filter(PaymentModel.rental_uid==payment_uid).one_or_none()
         if not result:
             abort(404)
         return make_response(jsonify(result), 200)
 
-@app.route("api/v1/payment/<string:payment_uid>", methods = ["DELETE"])
+@app.route("/api/v1/payment/<string:payment_uid>", methods = ["DELETE"])
 def delete_payment(payment_uid):
     payment = PaymentDB.session.query(PaymentModel).filter(PaymentModel.rental_uid==payment_uid).one_or_none()
     payment.status = 'CANCELED'
