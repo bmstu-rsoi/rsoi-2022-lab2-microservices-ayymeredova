@@ -17,6 +17,8 @@ class CarDB():
         
 
     def check_cars_db(self):
+        print("init migration")
+        
         self.cur.execute('DROP TABLE IF EXISTS cars;')
     
         self.cur.execute("""CREATE TABLE cars

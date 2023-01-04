@@ -58,7 +58,7 @@ def favicon():
 
 @app.route("/api/v1/rental/<string:rentalUid>", methods = ["GET"])
 def get_all_rentals_user(rental_uid):
-    result=RentalDB.session.query(RentalModel).filter(RentalModel.rental_uid==rental_uid).one_or_none()
+    result=db.session.query(RentalModel).filter(RentalModel.rental_uid==rental_uid).one_or_none()
     if not result:
         abort(404)
     return make_response(jsonify(result), 200)
@@ -66,7 +66,7 @@ def get_all_rentals_user(rental_uid):
 
 @app.route("/api/v1/rental/<string:rentalUid>", methods = ["DELETE"])
 def delete_one_rental(rentalUid):
-    rental = RentalDB.session.query(RentalModel).filter(RentalModel.rental_uid==rentalUid).one_or_none()
+    rental = db.session.query(RentalModel).filter(RentalModel.rental_uid==rentalUid).one_or_none()
     if rental.status != "IN PROGRESS":
         return Response(
             status=403,
@@ -100,7 +100,9 @@ def get_all_rental():
                 })
             )
         user = request.headers['X-User-Name']
-        rentals = [rental.to_dict() for rental in RentalModel.select().where(RentalModel.username == user)]
+        rental_list = db.session.query(RentalModel).filter(RentalModel.username==user).all()
+        # rentals = [rental.to_dict() for rental in RentalModel.select().where(RentalModel.username == user)]
+        rentals = [rental.to_dict() for rental in rental_list]
         # result=RentalModel.query.all()
         # if not result:
         #     abort(404)
@@ -141,7 +143,7 @@ def get_all_rental():
             return make_data_response(500, message="Database add error!")
 
     response = make_empty(201)
-    response.headers["Location"] = f"/api/v1/rentals/{new_rental.id}"
+    response.headers["Location"] = f"/api/v1/rental/{new_rental.id}"
     return response
 
 

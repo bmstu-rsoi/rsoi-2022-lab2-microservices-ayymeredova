@@ -16,7 +16,7 @@ class RentalModel(db.Model):
     date_to: str 
     status: bool
 
-    __tablename__ = 'rental'
+    __tablename__ = 'rentals'
     id = db.Column(db.Integer, primary_key=True)
     rental_uid = db.Column(db.String(36), nullable = False, default=lambda: str(uuid4()))
     username = db.Column(db.String(80), nullable=False)
@@ -38,4 +38,4 @@ class RentalModel(db.Model):
         }
 
     class Meta:
-        db_table = "rental"
+        db_table = "rentals"

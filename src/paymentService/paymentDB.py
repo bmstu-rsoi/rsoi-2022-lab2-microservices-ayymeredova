@@ -8,8 +8,8 @@ class PaymentDB():
             self.conn = psycopg2.connect(
                 host="postgres",
                 database="payments",
-                user='postgres',
-                password='postgres',
+                user='program',
+                password='test',
                 port="5432")
 
             self.cur = self.conn.cursor()
@@ -18,9 +18,11 @@ class PaymentDB():
         
 
     def check_payment_db(self):
-        self.cur.execute('DROP TABLE IF EXISTS payment;')
+        print("init migration")
+        
+        self.cur.execute('DROP TABLE IF EXISTS payments;')
     
-        self.cur.execute("""CREATE TABLE payment
+        self.cur.execute("""CREATE TABLE payments
         (
             id          SERIAL PRIMARY KEY,
             payment_uid uuid        NOT NULL,
@@ -29,7 +31,7 @@ class PaymentDB():
             price       INT         NOT NULL
         );""")
 
-        self.cur.execute(""" INSERT INTO payment
+        self.cur.execute(""" INSERT INTO payments
         (
             id,
             payment_uid,
@@ -44,7 +46,7 @@ class PaymentDB():
             );
         """)
 
-        self.cur.execute(""" INSERT INTO payment
+        self.cur.execute(""" INSERT INTO payments
         (
             id,
             payment_uid,
@@ -65,3 +67,5 @@ class PaymentDB():
         self.cur.close()
         self.conn.close()
             
+        print("finish migration")
+        

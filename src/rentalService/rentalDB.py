@@ -7,8 +7,8 @@ class RentalDB():
             self.conn = psycopg2.connect(
                 host="postgres",
                 database="rentals",
-                user='postgres',
-                password='postgres',
+                user='program',
+                password='test',
                 port="5432")
 
             self.cur = self.conn.cursor()
@@ -17,9 +17,11 @@ class RentalDB():
         
 
     def check_rental_db(self):
-        self.cur.execute('DROP TABLE IF EXISTS rental;')
+        print("init migration")
+        
+        self.cur.execute('DROP TABLE IF EXISTS rentals;')
     
-        self.cur.execute("""CREATE TABLE rental
+        self.cur.execute("""CREATE TABLE rentals
             (
         id          SERIAL PRIMARY KEY,
         rental_uid  uuid UNIQUE              NOT NULL,
@@ -32,7 +34,7 @@ class RentalDB():
             CHECK (status IN ('IN_PROGRESS', 'FINISHED', 'CANCELED'))
         );""")
 
-        self.cur.execute(""" INSERT INTO rental
+        self.cur.execute(""" INSERT INTO rentals
         (
             id,
             rental_uid,
@@ -55,7 +57,7 @@ class RentalDB():
             );
         """)
 
-        self.cur.execute(""" INSERT INTO rental
+        self.cur.execute(""" INSERT INTO rentals
         (
             id,
             rental_uid,
@@ -77,6 +79,14 @@ class RentalDB():
             'FINISHED'
             );
         """)
+
+        self.conn.commit()
+
+        self.cur.close()
+        self.conn.close()
+
+        print("finish migration")
+        
 
 
     
