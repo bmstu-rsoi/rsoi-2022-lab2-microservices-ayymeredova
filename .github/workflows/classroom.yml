@@ -31,16 +31,16 @@ jobs:
         env:
           WAIT_PORTS: 8080,8070,8060,8050
 
+
+
       - name: Run API Tests
-      run:
-      # - name: Run API Tests
-      #   uses: matt-ball/newman-action@master
-      #   with:
-      #     # TODO insert your variant
-      #     collection: v3/postman/collection.json
-      #     environment: v3/postman/environment.json
-      #     delayRequest: 100
-      #     reporters: '[ "cli" ]'
+        uses: matt-ball/newman-action@master
+        with:
+          # TODO insert your variant
+          collection: v3/postman/collection.json
+          environment: v3/postman/environment.json
+          delayRequest: 100
+          reporters: '[ "cli" ]'
 
       - uses: education/autograding@v1
         id: autograder
