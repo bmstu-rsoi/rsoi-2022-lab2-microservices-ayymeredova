@@ -16,7 +16,7 @@ class RentalDB():
             raise(e)
         
 
-    def check_cars_db(self, db_name):
+    def check_rental_db(self, db_name):
         self.cur.execute('DROP TABLE IF EXISTS rental;')
     
         self.cur.execute("""CREATE TABLE rental
@@ -45,13 +45,13 @@ class RentalDB():
         )
         VALUES(
             1,
-            67ae0820-73d7-11ed-a682-00155dec5d05,
-            User1,
-            7ffe9644-73d0-11ed-a67f-00155dec5d05,
-            2581d076-73d7-11ed-a681-00155dec5d05,
-            2022-10-10,
-            2022-12-12,
-            IN_PROGRESS,
+            '67ae0820-73d7-11ed-a682-00155dec5d05',
+            'User1',
+            '7ffe9644-73d0-11ed-a67f-00155dec5d05',
+            '2581d076-73d7-11ed-a681-00155dec5d05',
+            '2022-10-10',
+            '2022-12-12',
+            'IN_PROGRESS'
             );
         """)
 
@@ -67,14 +67,14 @@ class RentalDB():
             status
         )
         VALUES(
-            1,
-            a695f106-73d7-11ed-a683-00155dec5d05            
-            User2,
-            753f5bf8-73d0-11ed-a67e-00155dec5d05,
-            d0ad8de2-73d6-11ed-a680-00155dec5d05,
-            2022-01-01,
-            2022-02-12,
-            FINISHED,
+            2,
+            'a695f106-73d7-11ed-a683-00155dec5d05',            
+            'User2',
+            '753f5bf8-73d0-11ed-a67e-00155dec5d05',
+            'd0ad8de2-73d6-11ed-a680-00155dec5d05',
+            '2022-01-01',
+            '2022-02-12',
+            'FINISHED'
             );
         """)
 

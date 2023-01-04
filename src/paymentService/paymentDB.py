@@ -17,7 +17,7 @@ class PaymentDB():
             raise(e)
         
 
-    def check_cars_db(self, db_name):
+    def check_payment_db(self, db_name):
         self.cur.execute('DROP TABLE IF EXISTS payment;')
     
         self.cur.execute("""CREATE TABLE payment
@@ -38,8 +38,8 @@ class PaymentDB():
         )
         VALUES(
             1,
-            753f5bf8-73d0-11ed-a67e-00155dec5d05,
-            PAID,
+            '753f5bf8-73d0-11ed-a67e-00155dec5d05',
+            'PAID',
             200000
             );
         """)
@@ -53,8 +53,8 @@ class PaymentDB():
         )
         VALUES(
             2,
-            7ffe9644-73d0-11ed-a67f-00155dec5d05,
-            CANCELED,
+            '7ffe9644-73d0-11ed-a67f-00155dec5d05',
+            'CANCELED',
             400000
             );
         """)
@@ -64,12 +64,4 @@ class PaymentDB():
 
         self.cur.close()
         self.conn.close()
-
-    # @app.errorhandler(404)
-    # def not_found(error):
-    #     return make_response(jsonify({'error': 'Not found the information'}), 404)
-
-
-    # def delete_car (card_uid):
-    #     try:
             

@@ -47,6 +47,9 @@ def favicon():
                           'favicon.ico',mimetype='image/vnd.microsoft.icon')
 
 
+
+
+
 @app.route("api/v1/payment/<string:payment_uid>", methods = ["GET"])
 def get_payment(payment_uid):
         result=PaymentDB.session.query(PaymentModel).filter(PaymentModel.rental_uid==payment_uid).one_or_none()
@@ -93,7 +96,8 @@ def post_payment():
 
 
 if __name__ == '__main__':
-
+    paymentdb = PaymentDB()
+    paymentdb.check_payment_db()
     app.run(host='0.0.0.0', port=8050)
 
     

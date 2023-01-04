@@ -18,3 +18,14 @@ class PaymentModel(db.Model):
     payment_uid = db.Column(db.String(36),nullable = False, default=lambda: str(uuid4()))
     status= db.Column(db.String(20), nullable=False)
     price= db.Column(db.Integer, nullable = False)
+
+    def to_dict(self):
+        return {
+            "paymentUid": str(self.payment_uid),
+            "status": str(self.status),
+            "price": self.price,
+        }
+
+    class Meta:
+        db_table = "payment"
+

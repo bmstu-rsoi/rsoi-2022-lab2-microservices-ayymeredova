@@ -9,11 +9,12 @@ from flask_restful import Api, Resource, reqparse, abort, fields, marshal_with, 
 from flask_sqlalchemy import SQLAlchemy
 from rentalDB import RentalDB
 # from utils import make_data_response, make_empty
-from flask import send_from_directory, jsonify, make_response
+from flask import send_from_directory, jsonify, make_response, Response
 from sqlalchemy import exc
 from model import RentalModel, db
 import uuid
 import datetime
+import json
 
 app = Flask(__name__)
 
@@ -51,18 +52,28 @@ def favicon():
                           'favicon.ico',mimetype='image/vnd.microsoft.icon')
 
 
-@app.route("api/v1/rental/<string:rentalUid>", methods = ["GET"])
+@app.route("/api/v1/rental/<string:rentalUid>", methods = ["GET"])
 def get_all_rentals_user(rental_uid):
-    """Получить информацию о всех арендах пользователя"""
     result=RentalDB.session.query(RentalModel).filter(RentalModel.rental_uid==rental_uid).one_or_none()
     if not result:
         abort(404)
     return make_response(jsonify(result), 200)
 
-@app.route("api/v1/rental/<string:rentalUid>", methods = ["DELETE"])
-def delete_one_rental(rental_uid):
-    rental = RentalDB.session.query(RentalModel).filter(RentalModel.rental_uid==rental_uid).one_or_none()
+
+@app.route("/api/v1/rental/<string:rentalUid>", methods = ["DELETE"])
+def delete_one_rental(rentalUid):
+    rental = RentalDB.session.query(RentalModel).filter(RentalModel.rental_uid==rentalUid).one_or_none()
+    if rental.status != "IN PROGRESS":
+        return Response(
+            status=403,
+                content_type='application/json',
+                response=json.dumps({
+                    'errors': ['Rental not in progres.']
+                })
+        )
     rental.status = 'CANCELED'
+# ???????
+    rental.save()
 
     try:
         db.session.commit()
@@ -72,16 +83,35 @@ def delete_one_rental(rental_uid):
         return make_data_response(500, message="Database delete error")
 
 
-@app.route("api/v1/rentals/", methods = ["GET", "POST"])
+
+@app.route("/api/v1/rental/", methods = ["GET", "POST"])
 def get_all_rental():
     if request.method == 'GET':
-        result=RentalModel.query.all()
-        if not result:
-            abort(404)
-        return make_response(jsonify(result), 200)
+        if 'X-User-Name' not in request.headers.keys():
+            return Response(
+                status=400,
+                content_type='application/json',
+                response=json.dumps({
+                    'errors': ['Request has not X-User-Name header!']
+                })
+            )
+        user = request.headers['X-User-Name']
+        rentals = [rental.to_dict() for rental in RentalModel.select().where(RentalModel.username == user)]
+        # result=RentalModel.query.all()
+        # if not result:
+        #     abort(404)
+        return make_response(jsonify(rentals), 200)
 
     if request.method == "POST":
         try:
+            if 'X-User-Name' not in request.headers.keys():
+                return Response(
+                    status=400,
+                    content_type='application/json',
+                    response=json.dumps({
+                        'errors': ['Request has not X-User-Name header!']
+                    })
+                )
             if request.is_json:
                 user = request.headers['X-User-Name']
                 data = request.get_json()
@@ -112,5 +142,7 @@ def get_all_rental():
 
 
 if __name__ == '__main__':
+    rentalDb = RentalDB()
+    rentalDb.check_rental_db()
     app.run(host='0.0.0.0', port=8060)
 

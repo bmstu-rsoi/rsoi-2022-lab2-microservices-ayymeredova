@@ -17,7 +17,7 @@ class CarModel(db.Model):
     type: str
     availability: bool
 
-    __tablename__ = 'car'
+    __tablename__ = 'cars'
     id = db.Column(db.Integer, primary_key=True)
     car_uid = db.Column(db.String(36), nullable = False, default=lambda: str(uuid4()))
     brand = db.Column(db.String(80), nullable=False)
@@ -30,3 +30,19 @@ class CarModel(db.Model):
     # date_to = db.Column(db.Date, nullable=False)
     # status=db.Column(db.Boolean, nullable=False)
     registration_number=db.Column(db.String(80), nullable=False)
+
+
+    def to_dict(self):
+        return {
+            "carUid": str(self.car_uid),
+            "brand": str(self.brand),
+            "model": str(self.model),
+            "registrationNumber": str(self.registration_number),
+            "power": self.power,
+            "type": str(self.type),
+            "price": self.price,
+            "available": bool(self.availability)
+        }
+
+    class Meta:
+        db_table = "cars"

@@ -25,3 +25,17 @@ class RentalModel(db.Model):
     date_from = db.Column(db.Date, nullable=False)
     date_to = db.Column(db.Date, nullable=False)
     status=db.Column(db.Boolean, nullable=False)
+
+    def to_dict(self):
+        return {
+            "rentalUid": str(self.rental_uid),
+            "username": str(self.username),
+            "paymentUid": str(self.payment_uid),
+            "carUid": str(self.car_uid),
+            "dateFrom": str(self.date_from),
+            "dateTo": str(self.date_to),
+            "status": str(self.status)
+        }
+
+    class Meta:
+        db_table = "rental"

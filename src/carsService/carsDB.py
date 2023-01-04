@@ -16,7 +16,7 @@ class CarDB():
             raise(e)
         
 
-    def check_cars_db(self, db_name):
+    def check_cars_db(self):
         self.cur.execute('DROP TABLE IF EXISTS cars;')
     
         self.cur.execute("""CREATE TABLE cars
@@ -47,14 +47,14 @@ class CarDB():
         )
         VALUES(
             1,
-            d0ad8de2-73d6-11ed-a680-00155dec5d05,
-            AUDI,
-            M5,
+            'd0ad8de2-73d6-11ed-a680-00155dec5d05',
+            'AUDI',
+            'M5',
             0001,
             100, 
             3000000,
-            ROADSTER,
-            true,
+            'ROADSTER',
+            true
             );
         """)
 
@@ -72,14 +72,14 @@ class CarDB():
         )
         VALUES(
             2,
-            2581d076-73d7-11ed-a681-00155dec5d05,
-            BMW,
-            G6,
+            '2581d076-73d7-11ed-a681-00155dec5d05',
+            'BMW',
+            'G6',
             0002,
             400, 
             6000000,
-            SEDAN,
-            false,
+            'SEDAN',
+            false
             );
         """)
         
