@@ -102,12 +102,12 @@ def get_rentals():
 
     if request.method == "POST":
         body, errors = validate_body(request.data) #get_data
-        if body:
-            return Response(
-                status=200,
-                content_type='application/json',
-                response=json.dumps(errors)
-            )
+        # if body:
+        #     return Response(
+        #         status=200,
+        #         content_type='application/json',
+        #         response=json.dumps(errors)
+        #     )
         # if len(errors) > 0:
         #     return Response(
         #         status=400,
