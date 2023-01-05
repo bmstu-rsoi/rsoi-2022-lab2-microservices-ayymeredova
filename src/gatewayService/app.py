@@ -2,27 +2,19 @@ from email import message
 import os 
 import sys
 from marshmallow import ValidationError
-# import psycopg2
+
 from flask import Flask, flash, redirect
 import requests
 
-# from flask_migrate import Migrate
 from flask_restful import Api, Resource, reqparse, abort, fields, marshal_with, url_for
-# from flask_sqlalchemy import SQLAlchemy
-# from carsDB import CarDB
-# from utils import make_data_response, make_empty
+
 from flask import send_from_directory, jsonify, make_response, json, Response, request
-# from sqlalchemy import exc
-# from model import CarModel, db
 import uuid
 import datetime
 
 
 app = Flask(__name__)
 
-# db.init_app(app)
-
-# migrate = Migrate(app)
 
 port = os.environ.get('PORT')
 if port is None:
@@ -54,6 +46,8 @@ def validate_body(body):
     except:
         return None, ['Can\'t deserialize body!']
 
+
+    print("BODY IN VALIDATE = ", body)
     errors = []
     if 'carUid' not in body or type(body['carUid']) is not str or \
             'dateFrom' not in body or type(body['dateFrom']) is not str or \
@@ -107,15 +101,23 @@ def get_rentals():
         return make_response(response.json(), 200)
 
     if request.method == "POST":
-        body, errors = validate_body(request.form)
-        if len(errors) > 0:
+        body, errors = validate_body(request.data) #get_data
+        if body:
             return Response(
-                status=400,
+                status=200,
                 content_type='application/json',
                 response=json.dumps(errors)
             )
+        # if len(errors) > 0:
+        #     return Response(
+        #         status=400,
+        #         content_type='application/json',
+        #         response=json.dumps(errors)
+        #     )
+        print("BODY = ", body)
         username = request.headers['X-User-Name']
-        caruid = body['carUid']
+        caruid = str(body['carUid'])
+        print("caruid = ", caruid)
         response = requests.post(f"http://cars:8070/api/v1/cars/{caruid}/order")
 
         
@@ -135,15 +137,17 @@ def get_rentals():
             )
 
         car = response.json()
+        print("CAR = ", response.json())
+        # price = 200
         price = (datetime.datetime.strptime(body['dateTo'], "%Y-%m-%d").date() - \
-            datetime.datetime.strptime(body['dateFrom'], "%Y-%m-%d").date()).days * car['price']
+            datetime.datetime.strptime(body['dateFrom'], "%Y-%m-%d").date()).days *  str(car["price"])
 
         response = requests.post(f"http://payments:8050/api/v1/payment/",  data={'price': price})
 
 
         payment = response.json()
         body['paymentUid'] = payment['paymentUid']
-        response = requests.post(f"http://rentals:8060/api/v1/rental", data=body, headers={'X-User-Name': request.headers['X-User-Name']})
+        response = requests.post(f"http://rentals:8060/api/v1/rental/", data=body, headers={'X-User-Name': request.headers['X-User-Name']})
 
         if response.status_code != 200:
             return Response(
@@ -163,6 +167,44 @@ def get_rentals():
             response=json.dumps(rental)
         )
 
+@app.route('/api/v1/rental/<string:rentalUid>/finish', methods=["POST"])
+def post_finish(rentaluid):
+    response = requests.post(f"http://rental:8060/api/v1/rental/{rentaluid}/finish")
+
+    if response is None:
+        return Response(
+            status=500,
+            content_type='application/json',
+            response=json.dumps({
+                'errors': ['Rental service is unavailable.']
+            })
+        )
+    elif response.status_code != 200:
+        print("ERROR HERE")
+        return Response(
+            status=response.status_code,
+            content_type='application/json',
+            response=response.text
+        )
+
+    # rental = response.json()
+
+    # response = delete_data_from_service(
+    #     'http://' + os.environ['CARS_SERVICE_HOST'] + ':' + os.environ['CARS_SERVICE_PORT']
+    #     + '/api/v1/cars/' + rental['carUid'] + '/order', timeout=5)
+
+    if response is None:
+        return Response(
+            status=500,
+            content_type='application/json',
+            response=json.dumps({
+                'errors': ['Cars service is unavailable.']
+            })
+        )
+
+    return Response(
+        status=204
+    )
 
 
 if __name__=="__main__":

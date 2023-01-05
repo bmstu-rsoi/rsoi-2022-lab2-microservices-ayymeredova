@@ -56,6 +56,7 @@ def favicon():
                           'favicon.ico',mimetype='image/vnd.microsoft.icon')
 
 
+
 @app.route("/api/v1/rental/<string:rentalUid>", methods = ["GET"])
 def get_all_rentals_user(rental_uid):
     result=db.session.query(RentalModel).filter(RentalModel.rental_uid==rental_uid).one_or_none()
@@ -76,7 +77,6 @@ def delete_one_rental(rentalUid):
                 })
         )
     rental.status = 'CANCELED'
-# ???????
     rental.save()
 
     try:

@@ -3,7 +3,7 @@ import os
 import sys
 from marshmallow import ValidationError
 import psycopg2
-from flask import Flask, request, flash, redirect
+from flask import Flask, request, flash, redirect, Response
 from flask_migrate import Migrate
 from flask_restful import Api, Resource, reqparse, abort, fields, marshal_with, url_for
 from flask_sqlalchemy import SQLAlchemy
@@ -13,6 +13,7 @@ from flask import send_from_directory, jsonify, make_response
 from sqlalchemy import exc
 from model import PaymentModel, db
 from uuid import uuid4
+import json
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://program:test@postgres:5432/payments"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -44,6 +45,19 @@ def make_empty(status_code):
     del response.headers["Content-Length"]
     return response
 
+def validate_body(body):
+    try:
+        body = json.loads(body)
+    except:
+        return None, ['Can\'t deserialize body!']
+
+    errors = []
+    if 'price' not in body.keys() or type(body['price']) is not int:
+        return None, ['Bad structure body!']
+
+    return body, errors
+
+
 @app.route('/favicon.ico') 
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
@@ -53,16 +67,16 @@ def favicon():
 
 
 
-@app.route("/api/v1/payments/<string:payment_uid>", methods = ["GET"])
+@app.route("/api/v1/payment/<string:payment_uid>", methods = ["GET"])
 def get_payment(payment_uid):
-        result=PaymentDB.session.query(PaymentModel).filter(PaymentModel.rental_uid==payment_uid).one_or_none()
+        result=db.session.query(PaymentModel).filter(PaymentModel.payment_uid==payment_uid).one_or_none()
         if not result:
             abort(404)
         return make_response(jsonify(result), 200)
 
-@app.route("/api/v1/payments/<string:payment_uid>", methods = ["DELETE"])
+@app.route("/api/v1/payment/<string:payment_uid>", methods = ["DELETE"])
 def delete_payment(payment_uid):
-    payment = PaymentDB.session.query(PaymentModel).filter(PaymentModel.rental_uid==payment_uid).one_or_none()
+    payment = db.session.query(PaymentModel).filter(PaymentModel.payment_uid==payment_uid).one_or_none()
     payment.status = 'CANCELED'
 
     try:
@@ -72,30 +86,38 @@ def delete_payment(payment_uid):
         db.session.rollback()
         return make_data_response(500, message="Database delete error")
 
-@app.route('/api/v1/payments/', methods = ['POST'])
+@app.route('/api/v1/payment/', methods = ['POST'])
 def post_payment():
     try:
         if request.is_json:
             data = request.get_json()
             new_payment = PaymentModel(
                 payment_uid=str(uuid4()),
-                price=data["price"]
+                price=data["price"],
+                status="PAID"
             )
     except ValidationError:
             return make_response(400, message="Bad JSON format")
 
-    try:
-        db.session.add(new_payment)
-        db.session.commit()
+
+    return Response(
+        status=200,
+        content_type='application/json',
+        response=json.dumps(new_payment.to_dict())
+    )
+
+    # try:
+    #     db.session.add(new_payment)
+    #     db.session.commit()
 
 
-    except:
-        db.session.rollback()
-        return make_data_response(500,  message="Database delete error")
+    # except:
+    #     db.session.rollback()
+    #     return make_data_response(500,  message="Database delete error")
 
-    response = make_empty(201)
-    response.headers["Location"] = f"/api/v1/payment/{new_payment.id}"
-    return response
+    # response = make_empty(201)
+    # response.headers["Location"] = f"/api/v1/payment/{new_payment.id}"
+    # return response
 
 
 if __name__ == '__main__':
