@@ -99,7 +99,10 @@ def args_valid(args):
 
 
 
-
+#жив или не жив наш герой?
+@app.route('/manage/health', methods=['GET'])
+def health():
+    return make_response(jsonify({}), 200)
 
 @app.route("/api/v1/cars/<string:carUid>", methods = ["GET"])
 def get_car(carUid):
@@ -107,37 +110,29 @@ def get_car(carUid):
         result=db.session.query(CarModel).filter(CarModel.car_uid==carUid).one_or_none()
         if not result:
             abort(404)
-        return make_response(jsonify(result), 200)
+        return make_response(jsonify(result.to_dict()), 200)
 
 @app.route("/api/v1/cars/<string:carUid>/order", methods = ["POST"])
 def post_car(carUid):
     try:
-        # car = CarModel.select().where(CarModel.car_uid==carUid).get()
         car = db.session.query(CarModel).filter(CarModel.car_uid==carUid).one_or_none()
-        if car.availability is False:
-            return Response(
-                status=403,
+        if not car:
+            return Response(status=404,
                 content_type='application/json',
                 response=json.dumps({
-                    'errors': ['The car is already ordered.']
-                })
-            )
+                    'errors': ['Uid not found in DB.']
+            }))
         car.availability = False
-        car.save()
+        db.session.commit()
 
         return Response(
             status=200,
             content_type='application/json',
             response=json.dumps(car.to_dict())
         )
-    except:
-        return Response(
-        status=404,
-        content_type='application/json',
-        response=json.dumps({
-            'errors': ['Uid not found in DB.']
-        })
-    )
+    except Exception as e:
+        db.session.rollback()
+        return make_data_response(500, message="Database create order error")
 
 @app.route("/api/v1/cars/<string:carUid>/order", methods = ["DELETE"])
 def delete_car_order(carUid):
@@ -152,31 +147,20 @@ def delete_car_order(carUid):
                 })
             )
         car.availability = True
-        car.save()
         
+        db.session.commit()
         return Response(
-            status=200
+            status=204
         )
 
-    # try:
-    #     db.session.commit()
-    #     return make_empty(204)
-    # except:
-    #     db.session.rollback()
-    #     return make_data_response(500, message="Database delete error")
     except:
-        return Response(
-            status=404,
-            content_type='application/json',
-            response=json.dumps({
-                'errors': ['Uid not found in DB.']
-            })
-        )
+        db.session.rollback()
+        return make_data_response(500, message="Database delete error")
 
 
 @app.route("/api/v1/cars/", methods = ["GET"])
 def get_all_cars():
-
+    """Получить список всех доступных для бронирования автомобилей"""
     page, size, show_all, errors = args_valid(request.args)
     if len(errors) > 0:
         # return make_response(400, message="Not all args is given/!")
@@ -195,6 +179,7 @@ def get_all_cars():
         query = db.session.query(CarModel).filter(CarModel.availability==True)
         count_total = query.count()
         cars = [car.to_dict() for car in query.paginate(page=page, per_page=size)]
+
 
     else:
         count_total = CarModel.select().count()
